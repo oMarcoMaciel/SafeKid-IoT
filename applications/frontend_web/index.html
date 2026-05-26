@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeKid-IoT | Controle Escolar</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     
@@ -46,6 +47,48 @@
                             <strong>Pedro Santos (Turma 1B):</strong> Tag do aluno lida na portaria, aguardando bipe do responsável.
                         </li>
                     </ul>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="card chart-card">
+                        <div class="chart-header">
+                            <h3>Faltas por Aluno</h3>
+                            <span class="chart-tag">Mensal</span>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="grafico-faltas"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card chart-card">
+                        <div class="chart-header">
+                            <h3>Horario Medio de Chegada</h3>
+                            <span class="chart-tag">Ultimos 7 dias</span>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="grafico-chegada"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card chart-card">
+                        <div class="chart-header">
+                            <h3>Tempo em Sala de Aula</h3>
+                            <span class="chart-tag">Media diaria</span>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="grafico-sala"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card chart-card">
+                        <div class="chart-header">
+                            <h3>Horario Medio de Saida</h3>
+                            <span class="chart-tag">Ultimos 7 dias</span>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="grafico-saida"></canvas>
+                        </div>
+                    </div>
                 </div>
             </section>
 
