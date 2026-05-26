@@ -3,83 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeKid-IoT | Dashboard</title>
+    <title>SafeKid-IoT | Controle Escolar</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="navbar">
-        <div class="logo">🛡️ SafeKid-IoT</div>
-        <nav class="nav-links">
-            <a href="#" class="active">Dashboard Geral</a>
-            <a href="#">Configurações</a>
-            <a href="#">Sair</a>
-        </nav>
-    </header>
+    
+    <div id="login-view" class="login-container">
+        <div class="login-card">
+            <h1>🛡️ SafeKid-IoT</h1>
+            <p>Selecione o seu perfil de acesso para continuar:</p>
+            <div class="login-buttons">
+                <button onclick="fazerLogin('coordenacao')" class="btn btn-login coord-btn">👨‍🏫 Entrar como Coordenação</button>
+                <button onclick="fazerLogin('pais')" class="btn btn-login parent-btn">👨‍👩‍👧 Entrar como Responsável</button>
+            </div>
+        </div>
+    </div>
 
-    <main class="container">
-        <h1 class="page-title">Monitoramento de Custódia</h1>
-        
-        <section class="dashboard-section">
-            <div class="section-header">
-                <h2>Visão da Coordenação</h2>
-                <span class="status-badge live">Ao Vivo (MQTT)</span>
-            </div>
-            
-            <div class="card alert-card">
-                <h3>⚠️ Alertas de Atraso e Exceções</h3>
-                <ul class="alert-list">
-                    <li class="alert-item danger">
-                        <strong>João Silva (Turma 2A):</strong> Tempo limite de busca excedido (Atraso de 20 min). 
-                        <button class="btn btn-small">Notificar Pais</button>
-                    </li>
-                    <li class="alert-item warning">
-                        <strong>Pedro Santos (Turma 1B):</strong> Tag do aluno lida na portaria, aguardando bipe do responsável.
-                    </li>
-                </ul>
-            </div>
-        </section>
+    <div id="dashboard-view" style="display: none;">
+        <header class="navbar">
+            <div class="logo">🛡️ SafeKid-IoT</div>
+            <nav class="nav-links">
+                <span id="user-role-display" class="active">Painel</span>
+                <a href="#" onclick="fazerLogout()">Sair (Logout)</a>
+            </nav>
+        </header>
 
-        <section class="dashboard-section">
-            <div class="section-header">
-                <h2>Visão dos Pais: Histórico e Rastreamento</h2>
-            </div>
-            
-            <div class="grid-2-cols">
-                <div class="card">
-                    <h3>Histórico de Acessos - Ana Clara</h3>
-                    <table class="history-table">
-                        <thead>
-                            <tr>
-                                <th>Data / Hora</th>
-                                <th>Local</th>
-                                <th>Status / Validação</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>21/05/2026 - 07:15</td>
-                                <td>Entrada Principal</td>
-                                <td><span class="badge badge-success">Entrada (Dupla Confirmação)</span></td>
-                            </tr>
-                            <tr>
-                                <td>20/05/2026 - 12:30</td>
-                                <td>Saída Principal</td>
-                                <td><span class="badge badge-success">Saída (Responsável: Maria)</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
+        <main class="container">
+            <section id="secao-coordenacao" class="dashboard-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Visão da Coordenação: Controle de Fluxo</h2>
+                    <span class="status-badge live">Ao Vivo (MQTT)</span>
                 </div>
+                
+                <div class="card alert-card">
+                    <h3>⚠️ Alertas de Atraso e Exceções</h3>
+                    <ul class="alert-list">
+                        <li class="alert-item danger">
+                            <strong>João Silva (Turma 2A):</strong> Tempo limite de busca excedido (Atraso de 20 min). 
+                            <button class="btn btn-small">Acionar Pais</button>
+                        </li>
+                        <li class="alert-item warning">
+                            <strong>Pedro Santos (Turma 1B):</strong> Tag do aluno lida na portaria, aguardando bipe do responsável.
+                        </li>
+                    </ul>
+                </div>
+            </section>
 
-                <div class="card">
-                    <h3>Mapa de Calor (Wi-Fi Probe)</h3>
-                    <div class="heatmap-placeholder">
-                        <div class="pulse-ring"></div>
-                        <p>📍 Última localização detectada: <strong>Pátio Central</strong></p>
-                        <small>Atualizado há 2 minutos</small>
+            <section id="secao-pais" class="dashboard-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Visão dos Pais: Histórico e Rastreamento</h2>
+                </div>
+                
+                <div class="grid-2-cols">
+                    <div class="card">
+                        <h3>Histórico de Acessos - Ana Clara</h3>
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Data / Hora</th>
+                                    <th>Local</th>
+                                    <th>Status / Validação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>26/05/2026 - 07:15</td>
+                                    <td>Entrada Principal</td>
+                                    <td><span class="badge badge-success">Entrada (Dupla Confirmação)</span></td>
+                                </tr>
+                                <tr>
+                                    <td>25/05/2026 - 12:30</td>
+                                    <td>Saída Principal</td>
+                                    <td><span class="badge badge-success">Saída (Responsável: Maria)</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="card">
+                        <h3>Mapa de Calor (Localização Estimada)</h3>
+                        <div class="heatmap-placeholder">
+                            <div class="pulse-ring"></div>
+                            <p>📍 Última localização detectada: <strong>Pátio Central</strong></p>
+                            <small>Atualizado via ESP32 Probe há 1 min</small>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
-    </main>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
