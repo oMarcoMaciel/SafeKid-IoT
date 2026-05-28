@@ -1,4 +1,41 @@
 const graficosCoordenacao = {};
+const dadosMapaCalor = [
+    0.18, 0.22, 0.38, 0.52, 0.61,
+    0.15, 0.31, 0.63, 0.82, 0.76,
+    0.1, 0.34, 0.78, 0.98, 0.84,
+    0.08, 0.26, 0.54, 0.68, 0.57
+];
+
+function calcularCorMapaCalor(intensidade) {
+    const valor = Math.max(0, Math.min(1, intensidade));
+    const matiz = 220 - (220 * valor);
+    const saturacao = 78;
+    const luminosidade = 58 - (14 * valor);
+
+    return `hsl(${matiz}, ${saturacao}%, ${luminosidade}%)`;
+}
+
+function renderizarMapaCalor() {
+    const grade = document.getElementById('heatmap-grid');
+
+    if (!grade) {
+        return;
+    }
+
+    grade.innerHTML = '';
+
+    dadosMapaCalor.forEach((intensidade) => {
+        const celula = document.createElement('div');
+        const percentual = Math.round(intensidade * 100);
+
+        celula.className = 'heatmap-cell';
+        celula.style.backgroundColor = calcularCorMapaCalor(intensidade);
+        celula.dataset.value = `${percentual}%`;
+        celula.title = `Presenca estimada: ${percentual}%`;
+
+        grade.appendChild(celula);
+    });
+}
 
 function formatarMinutosParaHorario(minutos) {
     const horas = String(Math.floor(minutos / 60)).padStart(2, '0');
@@ -186,6 +223,7 @@ function fazerLogin(perfil) {
         secaoCoordenacao.style.display = 'none';
         secaoPais.style.display = 'block';
         userDisplay.innerText = 'Painel do Responsável';
+        renderizarMapaCalor();
     }
 }
 

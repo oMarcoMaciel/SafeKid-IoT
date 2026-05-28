@@ -125,10 +125,28 @@
 
                     <div class="card">
                         <h3>Mapa de Calor (Localização Estimada)</h3>
-                        <div class="heatmap-placeholder">
-                            <div class="pulse-ring"></div>
-                            <p>📍 Última localização detectada: <strong>Pátio Central</strong></p>
-                            <small>Atualizado via ESP32 Probe há 1 min</small>
+                        <div class="heatmap-prototype">
+                            <div class="heatmap-legend">
+                                <span>Menor presença</span>
+                                <div class="heatmap-scale"></div>
+                                <span>Maior presença</span>
+                            </div>
+
+                            <div class="heatmap-board">
+                                <div class="heatmap-grid" id="heatmap-grid"></div>
+                                <div class="heatmap-zones">
+                                    <div class="zone-tag">Sala A</div>
+                                    <div class="zone-tag">Biblioteca</div>
+                                    <div class="zone-tag emphasis">Pátio Central</div>
+                                    <div class="zone-tag">Corredor</div>
+                                    <div class="zone-tag">Portaria</div>
+                                </div>
+                            </div>
+
+                            <div class="heatmap-footer">
+                                <p>📍 Última localização detectada: <strong>Pátio Central</strong></p>
+                                <small>Mapa baseado nas leituras mais recentes da pulseira do aluno.</small>
+                            </div>
                         </div>
                     </div>
                 </div>
