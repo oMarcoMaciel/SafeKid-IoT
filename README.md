@@ -25,45 +25,57 @@ O projeto **SafeKid-IoT** nasceu da necessidade de aumentar a segurança de cria
 
 ## 🚀 Como Funciona?
 
-O ecossistema SafeKid é composto por três camadas principais:
+O ecossistema SafeKid opera em uma malha de dispositivos inteligentes:
 
-1.  **Hardware (Firmware)**: Dispositivos ESP32 equipados com leitores RFID RC522 e sensores de proximidade WiFi. Eles capturam os dados dos crachás e enviam via protocolo **MQTT** para o servidor.
-2.  **Backend (API)**: Desenvolvido em **FastAPI (Python)**, o servidor processa as mensagens MQTT, valida as permissões no banco de dados **SQLite** e disponibiliza os dados via API REST para o frontend.
-3.  **Frontend (Dashboard)**: Uma aplicação **Vue 3** moderna que exibe métricas em tempo real, logs de acesso e ferramentas de gerenciamento de dispositivos e alunos.
+1.  **Captura de Dados (Edge)**: Dispositivos ESP32 atuam como leitores RFID (entrada/saída) e como **Sniffers** de proximidade.
+2.  **Tecnologia de Rastreamento**: As tags WiFi/Bluetooth portadas pelas crianças emitem um "heartbeat" periódico. Os scanners capturam esse sinal e medem sua intensidade (**RSSI**).
+3.  **Estimativa de Distância**: O sistema calcula a distância com base na atenuação do sinal. Ao espalhar múltiplos scanners pela escola (Salas, Pátio, Refeitório), é possível mapear por onde a criança andou e em qual zona ela se encontra no momento.
+4.  **Processamento**: O protocolo **MQTT** garante a entrega rápida dos dados ao backend **FastAPI**, que processa as métricas e gerencia a lógica de acesso.
+5.  **Visualização**: O Dashboard em **Vue 3** refina esses dados brutos em gráficos e tabelas compreensíveis.
 
 ---
 
-## 📸 Demonstração
+## 📸 Demonstração Detalhada
 
-### Dashboard Principal
-Visualização geral de métricas e logs de acesso recentes.
+### 1. Dashboard de Controle
+Central de comando que exibe métricas críticas do dia, como total de acessos e tentativas desconhecidas. Permite uma auditoria rápida do fluxo de entrada e saída.
 ![Dashboard](media/dashboard_page.png)
 
-### Monitoramento e Rastreamento
-Acompanhamento da localização e força de sinal dos dispositivos.
+### 2. Monitoramento em Tempo Real
+Exibe o status atual de cada aluno (Online/Offline) e sua localização estimada.
 ![Tracking](media/tracking_page.png)
 
-### Gerenciamento de Scanners (ESP32)
-Controle dos pontos de monitoramento distribuídos.
+### 3. Gráficos Analíticos de Atividade
+O sistema gera visualizações para entender o comportamento de movimento:
+
+| **Curva de Intensidade (RSSI)** | **Distribuição por Zonas** |
+| :--- | :--- |
+| Mostra a variação da força do sinal ao longo do tempo. Uma curva ascendente indica aproximação do aluno ao ponto de monitoramento. | Gráfico de barras empilhadas que quantifica o tempo de permanência em cada zona (Perto, Muito Perto, Longe) por scanner. |
+| ![RSSI Curve](media/curve_distance_chart.png) | ![Stacked Bar](media/stacked_bar_distance_chart.png) |
+
+### 4. Gestão de Dispositivos (Scanners)
+Controle de todos os pontos de acesso ESP32. Aqui é possível renomear scanners e verificar sua última atividade na rede.
 ![Scanners](media/scanners_page.png)
 
-### Descoberta de Dispositivos (Sniffer)
+### 5. Descoberta de Tags (Sniffer)
+Demonstração do ESP32 identificando tags próximas através do "heartbeat". O sistema calcula a distância instantaneamente conforme o sinal é captado.
 ![Sniffer](media/sniffer.gif)
-*Identificação automática de novas tags e dispositivos próximos.*
+*O scanner detecta o MAC da tag e estima a distância via RSSI em tempo real.*
 
-### Gerenciamento de Crachás
-Interface para cadastro e edição de alunos e tags RFID.
+### 6. Gerenciamento de Alunos e Crachás
+Interface para vincular UIDs de cartões RFID a nomes de alunos e configurar permissões de acesso.
 ![Cards](media/cards_page.png)
 
-### Operação em Tempo Real
+### 7. Validação de Acesso
+Processo de leitura de cartão RFID. O sistema valida o UID no banco e responde via MQTT para destravar (ou não) o acesso físico.
 ![RFID Scan](media/rid_card.gif)
-*Escaneamento de cartão e resposta instantânea.*
+*Acesso autorizado com feedback imediato no hardware e log instantâneo no dashboard.*
 
 ---
 
 ## 🛠️ Stack Tecnológica
 
--   **Frontend**: Vue 3 (Composition API), Vite, Tailwind CSS, TanStack Query, Lucide Icons.
+-   **Frontend**: Vue 3 (Composition API), Vite, Tailwind CSS, TanStack Query, Lucide Icons, ApexCharts.
 -   **Backend**: FastAPI, SQLAlchemy (ORM), Paho-MQTT, Pydantic.
 -   **Firmware**: C++, PlatformIO, Arduino framework.
 -   **Infraestrutura**: Broker Mosquitto (MQTT), SQLite.
@@ -96,3 +108,5 @@ Consulte os READMEs específicos em cada pasta para instruções detalhadas de c
 - [Guia do Frontend](frontend/README.md)
 
 ---
+
+Desenvolvido com ❤️ para a segurança de quem mais importa.
