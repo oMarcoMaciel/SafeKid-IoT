@@ -15,7 +15,7 @@ const { sortedDiscovery, isLoading: isLoadingDiscovery } = useDiscoveryQuery();
 
 const showDebug = ref(false);
 const selectedStudentMac = ref<string | null>(null);
-const chartType = ref<'bar' | 'boxPlot' | 'heatmap'>('bar');
+const chartType = ref<'bar' | 'curve' | 'heatmap'>('bar');
 
 const { data: heatmapData, isLoading: isLoadingHeatmap } = useHeatmapQuery(selectedStudentMac);
 
@@ -91,10 +91,10 @@ const selectStudent = (mac: string) => {
                   Dist.
                 </button>
                 <button
-                  :class="['px-3 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all', chartType === 'boxPlot' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']" 
-                  @click="chartType = 'boxPlot'"
+                  :class="['px-3 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-lg transition-all', chartType === 'curve' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700']" 
+                  @click="chartType = 'curve'"
                 >
-                  Signal
+                  History
                 </button>
               </div>
               
@@ -126,7 +126,7 @@ const selectStudent = (mac: string) => {
                   </h3>
                 </div>
                 <ActivityChart
-                  :series="chartType === 'boxPlot' ? scanner.boxplot_series : scanner.series"
+                  :series="chartType === 'curve' ? scanner.rssi_series : scanner.series"
                   :type="chartType"
                 />
               </div>

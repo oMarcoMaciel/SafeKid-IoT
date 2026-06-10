@@ -46,5 +46,5 @@ export interface HeatmapData {
   scanner_id: string;
   scanner_name: string;
   series: unknown[];
-  boxplot_series: unknown[];
+  rssi_series: unknown[];
 }

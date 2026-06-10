@@ -1,5 +1,4 @@
 import collections
-import statistics
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.orm import Session
@@ -59,11 +58,14 @@ def get_heatmap_data(db: Session, mac: str):
     logs = db.query(TrackingLog).filter(
         TrackingLog.mac == mac,
         TrackingLog.timestamp >= start_time
-    ).all()
+    ).order_by(TrackingLog.timestamp.asc()).all()
 
     scanners = {s.identifier: s.name for s in db.query(Scanner).all()}
     
-    agg = collections.defaultdict(lambda: collections.defaultdict(lambda: collections.defaultdict(int)))
+    # Aggregation for Bar Chart (Hourly)
+    agg_bar = collections.defaultdict(lambda: collections.defaultdict(lambda: collections.defaultdict(int)))
+    
+    # Aggregation for RSSI Curve (5-minute windows for smoothness)
     agg_rssi = collections.defaultdict(lambda: collections.defaultdict(list))
     
     for log in logs:
@@ -71,14 +73,20 @@ def get_heatmap_data(db: Session, mac: str):
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=timezone.utc)
         
+        # Bar chart: Hour granularity
         hour_iso = dt.replace(minute=0, second=0, microsecond=0).isoformat()
         if not hour_iso.endswith('Z') and '+00:00' not in hour_iso:
             hour_iso += 'Z'
+        agg_bar[log.scanner][hour_iso][log.zone] += 1
         
-        agg[log.scanner][hour_iso][log.zone] += 1
-        distance = round(rssi_to_meters(log.rssi), 2)
-        agg_rssi[log.scanner][hour_iso].append(distance)
+        # RSSI curve: 5-minute granularity for a smooth continuous curve
+        minute_5 = (dt.minute // 5) * 5
+        time_iso = dt.replace(minute=minute_5, second=0, microsecond=0).isoformat()
+        if not time_iso.endswith('Z') and '+00:00' not in time_iso:
+            time_iso += 'Z'
+        agg_rssi[log.scanner][time_iso].append(log.rssi)
 
+    # Generate the last 24 hours (Hourly)
     hours_iso = []
     curr = now_utc.replace(minute=0, second=0, microsecond=0) - timedelta(hours=23)
     for _ in range(24):
@@ -91,47 +99,41 @@ def get_heatmap_data(db: Session, mac: str):
     zones = ["Very Near", "Near", "Far"]
     payload = []
     
-    for s_id in sorted(agg.keys()):
+    for s_id in sorted(agg_bar.keys()):
         s_name = scanners.get(s_id, f"Scanner {s_id}")
-        scanner_series = []
         
+        # 1. Stacked Bar Series
+        scanner_series = []
         for zone in zones:
             series_data = []
             for h in hours_iso:
-                series_data.append({"x": h, "y": agg[s_id][h][zone]})
+                series_data.append({"x": h, "y": agg_bar[s_id][h][zone]})
             scanner_series.append({"name": zone, "data": series_data})
             
-        boxplot_data = []
-        for h in hours_iso:
-            rssi_list = agg_rssi[s_id][h]
-            if rssi_list:
-                if len(rssi_list) >= 2:
-                    q1, median, q3 = statistics.quantiles(rssi_list, n=4)
-                    y_val = [min(rssi_list), q1, median, q3, max(rssi_list)]
-                else:
-                    val = rssi_list[0]
-                    y_val = [val, val, val, val, val]
-                boxplot_data.append({"x": h, "y": y_val})
+        # 2. RSSI Curve Series
+        rssi_data = []
+        # Sort timestamps for the curve
+        for t_iso in sorted(agg_rssi[s_id].keys()):
+            avg_rssi = sum(agg_rssi[s_id][t_iso]) / len(agg_rssi[s_id][t_iso])
+            rssi_data.append({"x": t_iso, "y": round(avg_rssi, 1)})
         
-        scanner_boxplot = [{"type": "boxPlot", "name": "Distance (m)", "data": boxplot_data}]
+        scanner_rssi_series = [{"name": "Signal Strength (RSSI)", "data": rssi_data}]
 
         payload.append({
             "scanner_id": s_id,
             "scanner_name": s_name,
             "series": scanner_series,
-            "boxplot_series": scanner_boxplot
+            "rssi_series": scanner_rssi_series
         })
     
     return payload
 
 def log_tracking(db: Session, mac: str, rssi: int, scanner_id: str):
-    """Processes and logs a tracking signal. Returns the log object or None if ignored."""
-    # Check if this MAC belongs to a registered student
+    """Business logic for logging tracking data"""
     card = db.query(Card).filter(Card.tracker_mac == mac).first()
     if not card:
         return None
 
-    # Classify zone
     if rssi >= -55:
         zone = "Very Near"
     elif rssi >= -75:

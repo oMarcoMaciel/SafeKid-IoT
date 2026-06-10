@@ -1,9 +1,11 @@
-export function getChartOptions(isHeatmap: boolean, isBoxPlot: boolean, isBar: boolean, title?: string) {
+export function getChartOptions(isHeatmap: boolean, isCurve: boolean, isBar: boolean, title?: string) {
+  const isLine = isCurve;
+  
   return {
     chart: {
       height: 350,
-      type: (isBoxPlot ? 'boxPlot' : (isHeatmap ? 'heatmap' : (isBar ? 'bar' : 'area'))) as 'bar',
-      stacked: (isBar || (!isBoxPlot && !isHeatmap)) && !isBoxPlot,
+      type: (isLine ? 'line' : (isHeatmap ? 'heatmap' : (isBar ? 'bar' : 'area'))) as 'line',
+      stacked: (isBar || (!isLine && !isHeatmap)) && !isLine,
       stackType: (isBar ? '100%' : undefined) as '100%' | 'normal' | undefined,
       toolbar: {
         show: false
@@ -25,7 +27,7 @@ export function getChartOptions(isHeatmap: boolean, isBoxPlot: boolean, isBar: b
     dataLabels: {
       enabled: false
     },
-    colors: isBoxPlot ? ["#8b5cf6"] : ["#22c55e", "#3b82f6", "#eab308"],
+    colors: isLine ? ["#6366f1"] : ["#22c55e", "#3b82f6", "#eab308"],
     title: {
       text: title,
       align: 'left' as const,
@@ -36,6 +38,40 @@ export function getChartOptions(isHeatmap: boolean, isBoxPlot: boolean, isBar: b
         color: '#1e293b'
       }
     },
+    annotations: isLine ? {
+      yaxis: [
+        {
+          y: -55,
+          y2: 0,
+          fillColor: '#22c55e',
+          opacity: 0.1,
+          label: {
+            text: 'VERY NEAR',
+            style: { color: '#15803d', background: '#f0fdf4', fontSize: '9px', fontWeight: 'bold' }
+          }
+        },
+        {
+          y: -75,
+          y2: -55,
+          fillColor: '#3b82f6',
+          opacity: 0.1,
+          label: {
+            text: 'NEAR',
+            style: { color: '#1d4ed8', background: '#eff6ff', fontSize: '9px', fontWeight: 'bold' }
+          }
+        },
+        {
+          y: -100,
+          y2: -75,
+          fillColor: '#eab308',
+          opacity: 0.1,
+          label: {
+            text: 'FAR',
+            style: { color: '#a16207', background: '#fefce8', fontSize: '9px', fontWeight: 'bold' }
+          }
+        }
+      ]
+    } : undefined,
     xaxis: {
       type: 'datetime' as const,
       labels: {
@@ -46,8 +82,10 @@ export function getChartOptions(isHeatmap: boolean, isBoxPlot: boolean, isBar: b
       }
     },
     yaxis: {
+      min: isLine ? -100 : undefined,
+      max: isLine ? -30 : undefined,
       title: {
-        text: isBoxPlot ? 'Distance (meters)' : (isBar ? 'Activity (%)' : undefined),
+        text: isLine ? 'Signal (RSSI dBm)' : (isBar ? 'Activity (%)' : undefined),
         style: {
           fontSize: '10px',
           fontWeight: 'bold',
@@ -56,7 +94,7 @@ export function getChartOptions(isHeatmap: boolean, isBoxPlot: boolean, isBar: b
       },
       labels: {
         formatter: (val: number) => {
-          if (isBoxPlot) return `${val.toFixed(1)}m`;
+          if (isLine) return `${val.toFixed(0)}dBm`;
           if (isBar) return `${Math.round(val).toString()}%`;
           return val.toString();
         },
@@ -67,7 +105,7 @@ export function getChartOptions(isHeatmap: boolean, isBoxPlot: boolean, isBar: b
     },
     stroke: {
       curve: 'smooth' as const,
-      width: isHeatmap ? 0 : 2
+      width: isHeatmap ? 0 : 3
     },
     plotOptions: {
       heatmap: isHeatmap ? {
@@ -85,15 +123,9 @@ export function getChartOptions(isHeatmap: boolean, isBoxPlot: boolean, isBar: b
       } : undefined,
       bar: {
         horizontal: false,
-        borderRadius: isBoxPlot ? 0 : 4,
+        borderRadius: 4,
         columnWidth: '60%',
-      },
-      boxPlot: isBoxPlot ? {
-        colors: {
-          upper: '#8b5cf6',
-          lower: '#c4b5fd'
-        }
-      } : undefined
+      }
     },
     tooltip: {
       shared: true,
@@ -107,8 +139,8 @@ export function getChartOptions(isHeatmap: boolean, isBoxPlot: boolean, isBar: b
           dataPointIndex: number, 
           w: { globals: { seriesPercent: number[][] } } 
         }) => {
-          if (isBoxPlot) {
-            return `${val.toFixed(2)}m`;
+          if (isLine) {
+            return `${val.toFixed(1)} dBm`;
           }
           
           if (isBar && opts) {
