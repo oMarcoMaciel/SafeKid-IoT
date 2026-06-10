@@ -3,7 +3,7 @@ import { ref } from 'vue';
 
 import { Check, Clock, Edit2, Loader2,Radio, X } from 'lucide-vue-next';
 
-import { AppNavbar, type Scanner } from '@/shared';
+import { AppNavbar, formatDate, formatRelativeTime, type Scanner } from '@/shared';
 
 import { useScannersQuery } from '../composables/useScannersQuery';
 import { useUpdateScannerMutation } from '../composables/useUpdateScannerMutation';
@@ -111,7 +111,7 @@ const saveEdit = (id: string) => {
 
           <div class="mt-6 pt-4 border-t border-slate-50 flex items-center gap-2 text-[10px] text-slate-400">
             <Clock class="h-3 w-3" />
-            <span>Last seen: {{ scanner.last_seen ? new Date(scanner.last_seen).toLocaleString() : 'Never' }}</span>
+            <span>Last seen: {{ formatRelativeTime(scanner.last_seen) }} ({{ formatDate(scanner.last_seen) }})</span>
           </div>
         </div>
       </div>

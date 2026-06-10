@@ -3,7 +3,7 @@ import { ref } from 'vue';
 
 import { BarChart3, Bug, Clock, Copy, MapPin, Radio, Signal, User, X } from 'lucide-vue-next';
 
-import { AppNavbar } from '@/shared';
+import { AppNavbar, formatRelativeTime, formatTime } from '@/shared';
 
 import ActivityChart from '../components/ActivityChart.vue';
 import { useDiscoveryQuery } from '../composables/useDiscoveryQuery';
@@ -221,7 +221,7 @@ const selectStudent = (mac: string) => {
             <div class="flex items-center justify-between mt-auto pt-3 border-t border-slate-50">
               <div class="flex items-center gap-2 text-[10px] text-slate-400">
                 <Clock class="h-3 w-3" />
-                <span>Last updated: {{ item.last_seen ? new Date(item.last_seen).toLocaleTimeString() : 'Never' }}</span>
+                <span>Last updated: {{ formatRelativeTime(item.last_seen) }} ({{ formatTime(item.last_seen) }})</span>
               </div>
               <div class="text-indigo-500">
                 <BarChart3 class="h-4 w-4" />
@@ -282,7 +282,7 @@ const selectStudent = (mac: string) => {
                 <div class="flex items-center gap-2">
                   <span class="text-[10px] font-bold text-indigo-500 uppercase leading-none">{{ tag.rssi.toString() }} dBm</span>
                   <span class="text-[10px] text-slate-300">•</span>
-                  <span class="text-[10px] text-slate-400 font-semibold uppercase leading-none">{{ new Date(tag.timestamp).toLocaleTimeString() }}</span>
+                  <span class="text-[10px] text-slate-400 font-semibold uppercase leading-none">{{ formatRelativeTime(tag.timestamp) }} ({{ formatTime(tag.timestamp) }})</span>
                 </div>
               </div>
             </div>

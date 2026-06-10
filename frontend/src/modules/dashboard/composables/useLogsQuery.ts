@@ -1,14 +1,18 @@
+import { type MaybeRefOrGetter, toValue } from 'vue';
+
 import { useQuery } from '@tanstack/vue-query';
 
-import type { AccessLog } from '@/shared';
-
 import { DASHBOARD_QUERY_KEYS } from '../constants';
-import { fetchLogs } from '../services/dashboardService';
+import { fetchLogs, type MetricsFilters } from '../services/dashboardService';
 
-export function useLogsQuery() {
-  return useQuery<AccessLog[]>({
-    queryKey: DASHBOARD_QUERY_KEYS.LOGS,
-    queryFn: fetchLogs,
+export function useLogsQuery(
+  skip: MaybeRefOrGetter<number> = 0,
+  limit: MaybeRefOrGetter<number> = 10,
+  filters: MaybeRefOrGetter<MetricsFilters> = {}
+) {
+  return useQuery({
+    queryKey: [...DASHBOARD_QUERY_KEYS.LOGS, skip, limit, filters],
+    queryFn: () => fetchLogs(toValue(skip), toValue(limit), toValue(filters)),
     refetchInterval: 5000,
   });
 }

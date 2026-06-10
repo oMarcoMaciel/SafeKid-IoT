@@ -1,13 +1,9 @@
 <script setup lang="ts">
-import type { AccessLog } from '@/shared';
+import { type AccessLog, formatDate, formatRelativeTime } from '@/shared';
 
 defineProps<{
   logs: AccessLog[];
 }>();
-
-const formatDate = (dateStr: string) => {
-  return new Date(dateStr).toLocaleString();
-};
 
 const getStatusClass = (status: string) => {
   switch (status) {
@@ -45,7 +41,10 @@ const getStatusClass = (status: string) => {
           class="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors"
         >
           <td class="p-4 text-sm">
-            {{ formatDate(log.timestamp) }}
+            <div class="flex flex-col">
+              <span class="text-gray-900 font-medium">{{ formatRelativeTime(log.timestamp) }}</span>
+              <span class="text-[10px] text-gray-400">{{ formatDate(log.timestamp) }}</span>
+            </div>
           </td>
           <td class="p-4 text-sm">
             {{ log.person_name || 'Desconhecido' }}

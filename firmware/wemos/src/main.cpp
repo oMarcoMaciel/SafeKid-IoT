@@ -9,9 +9,18 @@
 // --- CONFIGURAÇÃO ---
 char mqtt_server[40] = "192.168.1.20"; // Valor padrão
 const char* mqtt_topic_heartbeat = "tracking/heartbeat";
+const char* mqtt_topic_logs = "logs/wemos";
 
 WiFiClient espClient;
 PubSubClient client(espClient);
+
+// Helper para logs via MQTT
+void mqtt_log(String msg) {
+  Serial.println(msg);
+  if (client.connected()) {
+    client.publish(mqtt_topic_logs, msg.c_str());
+  }
+}
 
 // Flag para salvar config
 bool shouldSaveConfig = false;
@@ -54,7 +63,7 @@ void setup_wifi_manager() {
   wifiManager.addParameter(&custom_mqtt_server);
 
   // Tenta conectar com as credenciais padrão primeiro
-  WiFi.begin("uaifai-brum", "bemvindoaocesar");
+  WiFi.begin("FAMILIA BATISTA_2G", "ericabatista1601");
 
   // Tenta conectar, se falhar abre o AP único
   if (!wifiManager.autoConnect(apName.c_str())) {
@@ -149,10 +158,9 @@ void loop() {
     digitalWrite(LED_BUILTIN, LOW); 
     
     if (client.publish(mqtt_topic_heartbeat, buffer)) {
-      Serial.print("[MQTT] Heartbeat enviado: ");
-      Serial.println(buffer);
+      mqtt_log("[MQTT] Heartbeat enviado: " + String(buffer));
     } else {
-      Serial.println("[MQTT] ERRO ao enviar heartbeat!");
+      mqtt_log("[MQTT] ERRO ao enviar heartbeat!");
     }
     
     delay(100);

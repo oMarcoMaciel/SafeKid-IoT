@@ -1,14 +1,14 @@
+import { type MaybeRefOrGetter, toValue } from 'vue';
+
 import { useQuery } from '@tanstack/vue-query';
 
-import type { Summary } from '@/shared';
-
 import { DASHBOARD_QUERY_KEYS } from '../constants';
-import { fetchSummary } from '../services/dashboardService';
+import { fetchSummary, type MetricsFilters } from '../services/dashboardService';
 
-export function useSummaryQuery() {
-  return useQuery<Summary>({
-    queryKey: DASHBOARD_QUERY_KEYS.SUMMARY,
-    queryFn: fetchSummary,
+export function useSummaryQuery(filters: MaybeRefOrGetter<MetricsFilters> = {}) {
+  return useQuery({
+    queryKey: [...DASHBOARD_QUERY_KEYS.SUMMARY, filters],
+    queryFn: () => fetchSummary(toValue(filters)),
     refetchInterval: 5000,
   });
 }

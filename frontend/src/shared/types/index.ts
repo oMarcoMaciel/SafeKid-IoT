@@ -1,3 +1,8 @@
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+}
+
 export interface Card {
   id: number;
   uid: string;

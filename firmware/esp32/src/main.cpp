@@ -14,6 +14,7 @@
 char mqtt_server[40] = "192.168.1.20"; // Valor padrão
 const int mqtt_port = 1883;
 const char* tracking_topic_discovery = "tracking/discovery";
+const char* mqtt_topic_logs = "logs/esp32";
 
 unsigned long lastScanTime = 0;
 const unsigned long scanInterval = 5000; 
@@ -47,10 +48,31 @@ bool ledFeedbackType = false; // true for Green, false for Red blink
 TaskHandle_t mqttTaskHandle = NULL;
 TaskHandle_t rfidTaskHandle = NULL;
 QueueHandle_t rfidQueue = NULL;
+QueueHandle_t logQueue = NULL;
 
 struct RfidScan {
   char uid[32];
 };
+
+struct LogMsg {
+  char msg[128];
+};
+
+void mqtt_log(const char* format, ...) {
+  char buffer[128];
+  va_list args;
+  va_start(args, format);
+  vsnprintf(buffer, sizeof(buffer), format, args);
+  va_end(args);
+
+  Serial.println(buffer);
+  
+  if (logQueue != NULL) {
+    LogMsg log;
+    strncpy(log.msg, buffer, sizeof(log.msg));
+    xQueueSend(logQueue, &log, 0);
+  }
+}
 
 // Flag para salvar config
 bool shouldSaveConfig = false;
@@ -75,7 +97,7 @@ void setup_wifi_manager() {
   wifiManager.setConfigPortalTimeout(180); // 3 minutos
 
   // Tenta conectar com as credenciais padrão primeiro
-  WiFi.begin("uaifai-brum", "bemvindoaocesar");
+  WiFi.begin("FAMILIA BATISTA_2G", "ericabatista1601");
 
   if (!wifiManager.autoConnect("ESP32-Scanner-Config")) {
     Serial.println("Falha ao conectar, reiniciando...");
@@ -222,9 +244,15 @@ void mqttTask(void *pvParameters) {
       client.loop();
       scan_tracking_tags();
       
+      // Processa Logs
+      LogMsg log;
+      if (xQueueReceive(logQueue, &log, 0) == pdTRUE) {
+        client.publish(mqtt_topic_logs, log.msg);
+      }
+
       RfidScan scan;
       if (xQueueReceive(rfidQueue, &scan, 0) == pdTRUE) {
-        Serial.printf("Enviando UID %s para o broker...\n", scan.uid);
+        mqtt_log("Enviando UID %s para o broker...", scan.uid);
         StaticJsonDocument<200> doc;
         doc["uid"] = scan.uid;
         char buffer[256];
@@ -244,10 +272,9 @@ void rfidTask(void *pvParameters) {
     updateLedFeedback();
     
     if (rfid.PICC_IsNewCardPresent() && rfid.PICC_ReadCardSerial()) {
-      Serial.print("Cartão detectado! UID: ");
-      RfidScan scan;
       String uidStr = uidToString(rfid.uid);
-      Serial.println(uidStr);
+      mqtt_log("Cartão detectado! UID: %s", uidStr.c_str());
+      RfidScan scan;
       strncpy(scan.uid, uidStr.c_str(), sizeof(scan.uid));
       
       xQueueSend(rfidQueue, &scan, portMAX_DELAY);
@@ -276,11 +303,12 @@ void setup() {
   rfid.PCD_Init();
   
   rfidQueue = xQueueCreate(10, sizeof(RfidScan));
+  logQueue = xQueueCreate(20, sizeof(LogMsg));
   
   xTaskCreatePinnedToCore(mqttTask, "MQTTTask", 8192, NULL, 1, &mqttTaskHandle, 0);
   xTaskCreatePinnedToCore(rfidTask, "RFIDTask", 4096, NULL, 2, &rfidTaskHandle, 1);
 
-  Serial.println("Scanner Pronto");
+  mqtt_log("Scanner Pronto");
 }
 
 void loop() {
