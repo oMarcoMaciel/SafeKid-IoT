@@ -6,7 +6,6 @@ import { BarChart3, Bug, Clock, Copy, MapPin, Radio, Signal, User, X } from 'luc
 import { AppNavbar } from '@/shared';
 
 import ActivityChart from '../components/ActivityChart.vue';
-import BenchmarkSection from '../components/BenchmarkSection.vue';
 import { useDiscoveryQuery } from '../composables/useDiscoveryQuery';
 import { useHeatmapQuery } from '../composables/useHeatmapQuery';
 import { useLiveTrackingQuery } from '../composables/useLiveTrackingQuery';
@@ -141,9 +140,6 @@ const selectStudent = (mac: string) => {
           </div>
         </div>
       </section>
-
-      <!-- Benchmark Section -->
-      <BenchmarkSection />
 
       <!-- Section 1: Monitored Students -->
       <section class="space-y-4">

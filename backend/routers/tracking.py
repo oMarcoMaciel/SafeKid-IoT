@@ -1,12 +1,14 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-from typing import List, Dict
-from ..database import get_db, SessionLocal
-from ..models import Card, TrackingLog, Scanner
-from ..mqtt_client import mqtt_client
-from datetime import datetime, timedelta, timezone
 import collections
 import statistics
+from datetime import datetime, timedelta, timezone
+from typing import Dict
+
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+
+from ..database import get_db
+from ..models import Card, Scanner, TrackingLog
+from ..mqtt_client import mqtt_client
 
 # RSSI to Meters constants
 MEASURED_POWER = -62
@@ -24,11 +26,6 @@ router = APIRouter(prefix="/api/tracking", tags=["tracking"])
 def get_discovered_tags():
     """Returns recently discovered MAC addresses (last 1 min)"""
     return mqtt_client.discovered_tags
-
-@router.get("/benchmark")
-def get_tracking_benchmark():
-    """Returns the current state of the tracking benchmark"""
-    return mqtt_client.get_benchmark_state()
 
 @router.get("/live")
 def get_live_tracking(db: Session = Depends(get_db)):
