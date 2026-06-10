@@ -46,11 +46,11 @@ Exibe o status atual de cada aluno (Online/Offline) e sua localização estimada
 ![Tracking](media/tracking_page.png)
 
 ### 3. Gráficos Analíticos de Atividade
-O sistema gera visualizações para entender o comportamento de movimento:
+O sistema gera visualizações para entender o comportamento de movimento e segurança:
 
 | **Curva de Intensidade (RSSI)** | **Distribuição por Zonas** |
 | :--- | :--- |
-| Mostra a variação da força do sinal ao longo do tempo. Uma curva ascendente indica aproximação do aluno ao ponto de monitoramento. | Gráfico de barras empilhadas que quantifica o tempo de permanência em cada zona (Perto, Muito Perto, Longe) por scanner. |
+| Mostra a variação da força do sinal ao longo do tempo. Além de indicar aproximação, esta curva permite identificar **períodos suspeitos**: por exemplo, a detecção de sinais (mesmo em zona 'Far') fora do horário de aula ou em áreas restritas, auxiliando na prevenção de incidentes. | Gráfico de barras empilhadas que quantifica o tempo de permanência em cada zona (Perto, Muito Perto, Longe) por scanner, permitindo analisar quais ambientes a criança mais frequenta durante o dia. |
 | ![RSSI Curve](media/curve_distance_chart.png) | ![Stacked Bar](media/stacked_bar_distance_chart.png) |
 
 ### 4. Gestão de Dispositivos (Scanners)
